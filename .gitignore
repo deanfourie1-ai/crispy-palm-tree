@@ -1,0 +1,8 @@
+# Build artefacts
+build/
+warcraftgba.gba
+*.elf
+*.o
+
+# macOS
+.DS_Store
