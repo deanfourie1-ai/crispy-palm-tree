@@ -38,8 +38,10 @@ typedef int32_t  s32;
 
 /* ── DISPCNT bit flags ───────────────────────────────────────────────────── */
 #define DCNT_MODE0    (0)
+#define DCNT_MODE3    (3)         /* Bitmap 240×160 16-bit colour */
 #define DCNT_BG0      (1 << 8)
 #define DCNT_BG1      (1 << 9)
+#define DCNT_BG2      (1 << 10)  /* Required for Mode 3 output */
 #define DCNT_OBJ      (1 << 12)
 #define DCNT_OBJ_1D   (1 << 6)   /* 1-D OBJ tile mapping */
 
@@ -129,8 +131,8 @@ typedef struct {
 /* ── VBlank wait ─────────────────────────────────────────────────────────── */
 static inline void vblank_wait(void)
 {
-    while ((REG_DISPSTAT & (1 << 0)) == 0) {}  /* wait for VBlank start */
-    while ((REG_DISPSTAT & (1 << 0)) != 0) {}  /* wait for VBlank end   */
+    while (REG_VCOUNT >= 160) {}  /* wait until current VBlank ends */
+    while (REG_VCOUNT < 160) {}   /* wait until next VBlank starts   */
 }
 
 /* ── Simple memory utilities (no CRT, no libc) ───────────────────────────── */

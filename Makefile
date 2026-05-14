@@ -9,9 +9,10 @@
 #   make clean    – remove build artefacts
 # ============================================================
 
-TARGET   := warcraftgba
+TARGET   := hearthwood
 BUILD    := build
 SOURCES  := source
+INCLUDES := include
 
 # Source files
 C_FILES  := $(wildcard $(SOURCES)/*.c)
@@ -19,6 +20,7 @@ S_FILES  := $(wildcard $(SOURCES)/*.s)
 OBJ_C    := $(patsubst $(SOURCES)/%.c, $(BUILD)/%.o, $(C_FILES))
 OBJ_S    := $(patsubst $(SOURCES)/%.s, $(BUILD)/%.o, $(S_FILES))
 OBJECTS  := $(OBJ_S) $(OBJ_C)     # startup object first
+DEPS     := $(OBJ_C:.o=.d)
 
 # Tool-chain
 PREFIX   := arm-none-eabi-
@@ -36,7 +38,7 @@ ARCH     := -mcpu=arm7tdmi -mthumb-interwork
 CFLAGS   := $(ARCH) -O2 -Wall -Wextra \
             -fno-common -fno-strict-aliasing \
             -ffunction-sections -fdata-sections \
-            -I$(SOURCES)
+			-I$(INCLUDES) -I$(SOURCES) -MMD -MP
 ASFLAGS  := $(ARCH)
 
 # Linker flags
@@ -76,3 +78,5 @@ $(TARGET).gba: $(BUILD)/$(TARGET).elf
 
 clean:
 	rm -rf $(BUILD) $(TARGET).gba
+
+-include $(DEPS)

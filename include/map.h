@@ -20,6 +20,20 @@
 #define TILE_FOREST   2
 #define TILE_MOUNTAIN 3
 #define TILE_DIRT     4
+#define TILE_ORE      5
+
+typedef enum {
+	MAP_ID_1_PLACEHOLDER = 0,
+    MAP_ID_2_RESOURCE_TEST,
+	MAP_ID_COUNT
+} MapId;
+
+typedef struct {
+    const char *name;
+    const char *description;
+    u16 preview_base;
+    u16 preview_accent;
+} MapMetadata;
 
 /* Map pixel extents */
 #define MAP_PX_W   (MAP_W * 8)   /* 512 */
@@ -32,6 +46,18 @@
 /* Load the fixed map data into VRAM and reset the camera */
 void map_init(void);
 
+/* Select which map map_init() should load. */
+void map_set_active(MapId id);
+
+/* Returns currently selected map id. */
+MapId map_get_active(void);
+
+/* Number of map entries available for selection. */
+int map_get_count(void);
+
+/* Read-only metadata for a map entry (NULL for invalid id). */
+const MapMetadata *map_get_metadata(MapId id);
+
 /*
  * Set the hardware BG scroll registers to (cam_x, cam_y).
  * Call once per frame after game logic has updated the camera.
@@ -43,3 +69,6 @@ u8 map_get_tile(int tx, int ty);
 
 /* Returns true when the tile at (tx, ty) blocks movement */
 bool map_tile_blocks(int tx, int ty);
+
+/* Update a tile at runtime (updates both live data and VRAM) */
+void map_set_tile(int tx, int ty, u8 tile);

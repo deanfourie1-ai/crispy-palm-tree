@@ -4,7 +4,7 @@
 @
 @ Memory layout used:
 @   0x08000000  ROM  (this file is placed first by the linker)
-@   0x03007F00  System/User stack (grows down)
+@   0x03007800  System/User stack (grows down, ~2 KB headroom to IRQ stack)
 @   0x03007FA0  IRQ stack
 @   0x03007FE0  Supervisor stack
 @ ============================================================
@@ -31,12 +31,12 @@ _start:
 @ ------------------------------------------------------------------
 @ 0xA0 – Game title (12 bytes, uppercase ASCII, zero-padded)
 @ ------------------------------------------------------------------
-    .ascii  "WARCRAFTGBA\0"   @ 11 chars + 1 null = 12 bytes
+    .ascii  "HEARTHWOOD\0\0"  @ 10 chars + 2 null = 12 bytes
 
 @ ------------------------------------------------------------------
 @ 0xAC – Game code (4 bytes)
 @ ------------------------------------------------------------------
-    .ascii  "AGWB"
+    .ascii  "AHHW"
 
 @ ------------------------------------------------------------------
 @ 0xB0 – Maker code (2 bytes)
@@ -61,9 +61,9 @@ _start:
 @ ------------------------------------------------------------------
 @ 0xBD – Complement check
 @ Formula: -(0x19 + sum(header[0xA0..0xBC])) & 0xFF
-@ With the fields above the result is 0xAC.
+@ With the fields above the result is 0xE2.
 @ ------------------------------------------------------------------
-    .byte   0xAC
+    .byte   0xD4
 
 @ ------------------------------------------------------------------
 @ 0xBE – Reserved (2 bytes) – total header size = 0xC0 = 192 bytes
@@ -92,7 +92,7 @@ rom_entry:
     bic     r0, r0, #0x1F
     orr     r0, r0, #0x1F
     msr     cpsr_c, r0
-    ldr     sp, =0x03007F00     @ System stack top
+    ldr     sp, =0x03007800     @ System stack top (gives more room for menu code)
 
     @ -----------------------------------------------------------------
     @ Copy initialised .data section from ROM to EWRAM

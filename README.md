@@ -1,7 +1,7 @@
 # crispy-palm-tree – GBA RTS Base
 
 A Game Boy Advance ROM project: a simplified real-time strategy game inspired by
-early Warcraft titles.
+classic fantasy RTS titles.
 
 ## Game concept
 
@@ -11,6 +11,10 @@ early Warcraft titles.
   south-west of the map.
 * **Enemy units** – 3 Orcs (green/red) – start in the north-east.
 * A **yellow cursor** indicates the current tile under the player's control.
+* **Map Select foundation** is in place: New Game opens a map list that
+  currently contains **MAP 1 (PLACEHOLDER)**.
+* Map entries are now metadata-driven (name, description, preview theme), so
+  adding future maps is mostly a data-table update plus map terrain data.
 
 ## Controls
 
@@ -19,6 +23,12 @@ early Warcraft titles.
 | D-Pad | Move cursor / camera follows |
 | **A** | Select player unit at cursor, OR issue a move command when a unit is already selected, OR attack an enemy at the cursor tile |
 | **B** | Deselect current unit / cancel |
+| **R** | Open build menu (Wood Depot, Gold Mine, Food Store), then place at cursor |
+
+Menu flow:
+
+* Select **NEW GAME** to open the map list.
+* Choose **MAP 1 (PLACEHOLDER)** and press **A** to start.
 
 ## Screenshot preview
 
@@ -41,18 +51,18 @@ sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi
 make
 ```
 
-This produces **`warcraftgba.gba`** (a valid GBA ROM binary, ~5–6 KB).
+This produces **`embercrown.gba`** (a valid GBA ROM binary, ~5–6 KB).
 
 ### Play
 
-Open `warcraftgba.gba` in any GBA emulator that supports `.gba` ROMs, such as:
+Open `embercrown.gba` in any GBA emulator that supports `.gba` ROMs, such as:
 
 * [mGBA](https://mgba.io/) *(recommended)*
 * [VisualBoyAdvance-M](https://vba-m.com/)
 * [RetroArch](https://www.retroarch.com/) with the mGBA core
 
 ```bash
-mgba warcraftgba.gba
+mgba embercrown.gba
 ```
 
 ## Project structure
@@ -61,16 +71,26 @@ mgba warcraftgba.gba
 .
 ├── Makefile              Build system (arm-none-eabi-gcc)
 ├── gba_cart.ld           GBA cartridge linker script
-├── source/
-│   ├── crt0.s            ARM startup code + GBA ROM header
+├── include/
 │   ├── gba.h             Hardware register definitions, types, helpers
 │   ├── tiles.h           BG tile and OBJ sprite pixel data + palettes
-│   ├── video.h / .c      Display initialisation (VRAM, palette upload)
-│   ├── input.h / .c      Button debounce and edge detection
-│   ├── map.h / .c        Tile map data and BG scroll management
-│   ├── unit.h / .c       Unit state, tile-step movement, OAM rendering
-│   ├── game.h / .c       Game logic: cursor, selection, move commands
+│   ├── video.h           Display API
+│   ├── input.h           Input API
+│   ├── map.h             Map API
+│   ├── unit.h            Unit API
+│   ├── game.h            Game logic API
+│   └── menu.h            Menu API
+├── source/
+│   ├── crt0.s            ARM startup code + GBA ROM header
+│   ├── video.c           Display initialisation (VRAM, palette upload)
+│   ├── input.c           Button debounce and edge detection
+│   ├── map.c             Tile map data and BG scroll management
+│   ├── unit.c            Unit state, tile-step movement, OAM rendering
+│   ├── game.c            Game logic: cursor, selection, move commands
+│   ├── menu.c            Main menu UI and navigation
 │   └── main.c            Entry point and main loop
+├── build/                Generated objects, deps, and ELF (auto-generated)
+├── test_builds/          Archived older test ROMs/SAVs
 └── preview.png           Simulated screen preview
 ```
 
