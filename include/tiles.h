@@ -146,11 +146,12 @@ static const u8 bg_tiles[8][32] = {
 #define OBJ_TILE_WILLOW_BASE     49  /* 16×16 Willow hero: tiles 49-52 */
 #define OBJ_TILE_HEART_FULL      53  /* 8×8 filled gold heart           */
 #define OBJ_TILE_HEART_EMPTY     54  /* 8×8 hollow dark-red heart       */
+#define OBJ_TILE_HOVEL_BASE      55  /* 16×16 hovel building: tiles 55-58 */
 
 
 /* ── OBJ sprite tile data ─────────────────────────────────────────────────  */
 
-static const u8 obj_tiles[55][32] = {
+static const u8 obj_tiles[59][32] = {
     /* 0 – Footman: blue (2) armour, skin (1) face, dark-blue (3) outline */
     {
         0x20, 0x22, 0x22, 0x02,   /* row 0: .22222. */
@@ -733,8 +734,8 @@ static const u8 obj_tiles[55][32] = {
      *   C=tunic        D=tunic-shadow  E=hair/boots  F=pants
      *
      * Pixel design (16 cols × 16 rows):
-     *   row  0: . . . E E E E E E E . . . . . .   hair top
-     *   row  1: . . E E E E E E E E E . . . . .   hair wide
+     *   row  0: . . . 9 9 9 9 9 9 . . . . . . .   hat crown (gold shadow)
+     *   row  1: . 8 8 8 8 8 8 8 8 8 8 . . . . .   hat brim  (warm gold)
      *   row  2: . . E 1 1 1 1 1 1 E . . . . . .   face
      *   row  3: . . E 1 B 1 1 B 1 E . . . . . .   eyes
      *   row  4: . . E 1 1 7 1 1 1 E . . . . . .   mouth
@@ -753,8 +754,8 @@ static const u8 obj_tiles[55][32] = {
 
     /* 49 – Willow top-left (cols 0-7, rows 0-7) */
     {
-        0x00, 0xE0, 0xEE, 0xEE,   /* row 0: . . . E | E E E E */
-        0x00, 0xEE, 0xEE, 0xEE,   /* row 1: . . E E | E E E E */
+        0x00, 0x90, 0x99, 0x99,   /* row 0: . . . 9 | 9 9 9 9  (hat crown, gold shadow) */
+        0x80, 0x88, 0x88, 0x88,   /* row 1: . 8 8 8 | 8 8 8 8  (hat brim, warm gold) */
         0x00, 0x1E, 0x11, 0x11,   /* row 2: . . E 1 | 1 1 1 1 */
         0x00, 0x1E, 0x1B, 0xB1,   /* row 3: . . E 1 | B 1 1 B */
         0x00, 0x1E, 0x71, 0x11,   /* row 4: . . E 1 | 1 7 1 1 */
@@ -765,8 +766,8 @@ static const u8 obj_tiles[55][32] = {
 
     /* 50 – Willow top-right (cols 8-15, rows 0-7) */
     {
-        0x0E, 0x00, 0x00, 0x00,   /* row 0: E . . . | . . . . */
-        0xEE, 0x0E, 0x00, 0x00,   /* row 1: E E E . | . . . . */
+        0x09, 0x00, 0x00, 0x00,   /* row 0: 9 . . . | . . . .  (hat crown right) */
+        0x88, 0x08, 0x00, 0x00,   /* row 1: 8 8 8 . | . . . .  (hat brim right) */
         0xE1, 0x00, 0x00, 0x00,   /* row 2: 1 E . . | . . . . */
         0xE1, 0x00, 0x00, 0x00,   /* row 3: 1 E . . | . . . . */
         0xE1, 0x00, 0x00, 0x00,   /* row 4: 1 E . . | . . . . */
@@ -835,6 +836,87 @@ static const u8 obj_tiles[55][32] = {
         0x00, 0x07, 0x07, 0x00,   /* row 5: ..7.7... */
         0x00, 0x70, 0x00, 0x00,   /* row 6: ...7.... */
         0x00, 0x00, 0x00, 0x00,   /* row 7 */
+    },
+
+    /* ================================================================
+     * Tiles 55-58: Hovel building, 16×16 front-facing sprite.
+     *
+     * Tile layout (1D mapping, 4-bpp, OBJ_SHAPE_SQ + OBJ_SIZE_16):
+     *   55 = top-left  (cols  0-7,  rows  0-7)   — roof left + upper wall
+     *   56 = top-right (cols  8-15, rows  0-7)   — roof right + upper wall
+     *   57 = bot-left  (cols  0-7,  rows  8-15)  — lower wall + window/door
+     *   58 = bot-right (cols  8-15, rows  8-15)  — lower wall + door
+     *
+     * Palette mapping:
+     *   0=transparent  6=red(roof)  7=dark-red(eave/shadow)
+     *   8=warm-gold(window glass)  9=gold-shadow(window frame)
+     *   C=12=brown(walls)  D=13=dark-brown(door frame/opening)
+     *
+     * Sprite design (16 cols × 16 rows):
+     *   row  0: . . . . . 7 6 6 | 6 7 . . . . . .   roof ridge
+     *   row  1: . . . . 7 6 6 6 | 6 6 7 . . . . .   roof
+     *   row  2: . . . 7 6 6 6 6 | 6 6 6 7 . . . .   roof
+     *   row  3: . . 7 6 6 6 6 6 | 6 6 6 6 7 . . .   roof wide
+     *   row  4: . 7 6 6 6 6 6 6 | 6 6 6 6 6 6 7 .   roof eave
+     *   row  5: C C C C C C C C | C C C C C C C C   wall
+     *   row  6: C C 9 8 8 9 D . | . D C C C C C C   window + door
+     *   row  7: C C 9 8 8 9 D . | . D C C C C C C   window + door
+     *   row  8: C C 9 8 8 9 D . | . D C C C C C C   window + door
+     *   row  9: C C 8 8 8 8 D . | . D C C C C C C   window glass
+     *   row 10: C C 9 9 9 9 D . | . D C C C C C C   window bottom
+     *   row 11: C C C C C C D . | . D C C C C C C   wall
+     *   row 12: C C C C C C D . | . D C C C C C C   wall
+     *   row 13: C C C C C C C C | C C C C C C C C   wall base
+     *   row 14: . . . . . . . . | . . . . . . . .   ground (transparent)
+     *   row 15: . . . . . . . . | . . . . . . . .   ground (transparent)
+     * ================================================================ */
+
+    /* 55 – Hovel top-left (cols 0-7, rows 0-7) */
+    {
+        0x00, 0x00, 0x70, 0x66,   /* row 0: . . . . . 7 6 6 */
+        0x00, 0x00, 0x67, 0x66,   /* row 1: . . . . 7 6 6 6 */
+        0x00, 0x70, 0x66, 0x66,   /* row 2: . . . 7 6 6 6 6 */
+        0x00, 0x67, 0x66, 0x66,   /* row 3: . . 7 6 6 6 6 6 */
+        0x70, 0x66, 0x66, 0x66,   /* row 4: . 7 6 6 6 6 6 6 */
+        0xCC, 0xCC, 0xCC, 0xCC,   /* row 5: C C C C C C C C */
+        0xCC, 0x89, 0x98, 0x0D,   /* row 6: C C 9 8 8 9 D . */
+        0xCC, 0x89, 0x98, 0x0D,   /* row 7: C C 9 8 8 9 D . */
+    },
+
+    /* 56 – Hovel top-right (cols 8-15, rows 0-7) */
+    {
+        0x76, 0x00, 0x00, 0x00,   /* row 0: 6 7 . . . . . . */
+        0x66, 0x07, 0x00, 0x00,   /* row 1: 6 6 7 . . . . . */
+        0x66, 0x76, 0x00, 0x00,   /* row 2: 6 6 6 7 . . . . */
+        0x66, 0x66, 0x07, 0x00,   /* row 3: 6 6 6 6 7 . . . */
+        0x66, 0x66, 0x66, 0x07,   /* row 4: 6 6 6 6 6 6 7 . */
+        0xCC, 0xCC, 0xCC, 0xCC,   /* row 5: C C C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row 6: . D C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row 7: . D C C C C C C */
+    },
+
+    /* 57 – Hovel bot-left (cols 0-7, rows 8-15) */
+    {
+        0xCC, 0x89, 0x98, 0x0D,   /* row  8: C C 9 8 8 9 D . */
+        0xCC, 0x88, 0x88, 0x0D,   /* row  9: C C 8 8 8 8 D . */
+        0xCC, 0x99, 0x99, 0x0D,   /* row 10: C C 9 9 9 9 D . */
+        0xCC, 0xCC, 0xCC, 0x0D,   /* row 11: C C C C C C D . */
+        0xCC, 0xCC, 0xCC, 0x0D,   /* row 12: C C C C C C D . */
+        0xCC, 0xCC, 0xCC, 0xCC,   /* row 13: C C C C C C C C */
+        0x00, 0x00, 0x00, 0x00,   /* row 14: . . . . . . . . */
+        0x00, 0x00, 0x00, 0x00,   /* row 15: . . . . . . . . */
+    },
+
+    /* 58 – Hovel bot-right (cols 8-15, rows 8-15) */
+    {
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row  8: . D C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row  9: . D C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row 10: . D C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row 11: . D C C C C C C */
+        0xD0, 0xCC, 0xCC, 0xCC,   /* row 12: . D C C C C C C */
+        0xCC, 0xCC, 0xCC, 0xCC,   /* row 13: C C C C C C C C */
+        0x00, 0x00, 0x00, 0x00,   /* row 14: . . . . . . . . */
+        0x00, 0x00, 0x00, 0x00,   /* row 15: . . . . . . . . */
     },
 };
 

@@ -117,6 +117,7 @@ static void oam_hide(int slot)
 #define OAM_DAY_D0    10
 #define OAM_DAY_D1    11
 #define OAM_HEART_0   12
+#define OAM_HOVEL     16   /* 16×16 hovel building sprite */
 
 /* ── Active minigame tracking ─────────────────────────────────────────────── */
 static bool minigame_pending   = false;
@@ -493,7 +494,23 @@ void game_hud_draw(void)
         oam[OAM_HEART_0 + i].attr2 = OBJ_TILE(htile) | OBJ_PRIO(0) | OBJ_PAL(0);
     }
 
-    /* Hide unused OAM slots (16 and above) */
-    for (int i = OAM_HEART_0 + HERO_MAX_HEARTS; i < 128; i++)
+    /* ── Hovel building sprite (16×16) at fixed world position ────────────── */
+    /* Place the hovel at tile (26, 16) — centre the sprite on that tile */
+#define HOVEL_TX  26
+#define HOVEL_TY  16
+    {
+        int hx = HOVEL_TX * 8 - cam_x - 4;
+        int hy = HOVEL_TY * 8 - cam_y - 8;
+        if (hx >= -16 && hx < SCREEN_W && hy >= -16 && hy < SCREEN_H) {
+            oam[OAM_HOVEL].attr0 = OBJ_Y(hy) | OBJ_SHAPE_SQ | OBJ_4BPP;
+            oam[OAM_HOVEL].attr1 = OBJ_X(hx) | OBJ_SIZE_16;
+            oam[OAM_HOVEL].attr2 = OBJ_TILE(OBJ_TILE_HOVEL_BASE) | OBJ_PRIO(2) | OBJ_PAL(0);
+        } else {
+            oam_hide(OAM_HOVEL);
+        }
+    }
+
+    /* Hide unused OAM slots (17 and above) */
+    for (int i = OAM_HOVEL + 1; i < 128; i++)
         oam_hide(i);
 }
